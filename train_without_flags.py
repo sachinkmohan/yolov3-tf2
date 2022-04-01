@@ -1,3 +1,8 @@
+'''
+Modified by: Sachin K Mohan
+Use the below to create a pruned_model
+python train_without_flags.py --batch_size 2 --dataset ./data/voc2012_val.tfrecord --val_dataset ./data/voc2012_val.tfrecord --epochs 1 --transfer fine_tune --weights ./checkpoints/yolov3.tf
+'''
 from absl import app, flags, logging
 from absl.flags import FLAGS
 
