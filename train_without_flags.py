@@ -125,7 +125,10 @@ def main(_argv):
     num_images = 5717
     end_step = np.ceil(num_images / FLAGS.batch_size).astype(np.int32) * FLAGS.epochs
 
+    '''
+    # commented out to test layer wise pruning
     # Define model for pruning.
+    # full model pruning
     pruning_params = {
         'pruning_schedule': tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.50,
                                                                  final_sparsity=0.80,
@@ -133,6 +136,21 @@ def main(_argv):
                                                                  end_step=end_step)
     }
     model_for_pruning = tfmot.sparsity.keras.prune_low_magnitude(model, **pruning_params)
+    '''
+
+    ### Layer pruning begins here
+
+    def apply_pruning_to_conv2d(layer):
+        if isinstance(layer, tf.keras.layers.Conv2D):
+            return tfmot.sparsity.keras.prune_low_magnitude(layer,
+                                                            pruning_schedule=pruning_sched.ConstantSparsity(0.5, 0))
+        return layer
+
+    model_for_pruning = tf.keras.models.clone_model(
+        model,
+        clone_function=apply_pruning_to_conv2d,
+    )
+
     model_for_pruning.compile(optimizer=optimizer, loss=loss)
     model_for_pruning.summary()
 
